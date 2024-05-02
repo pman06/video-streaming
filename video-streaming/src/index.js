@@ -1,4 +1,6 @@
 const express = require("express");
+const http = require("http");
+
 const fs = require("fs");
 const app = express();
 
@@ -8,15 +10,24 @@ if (!process.env.PORT) {
   );
 }
 const PORT = process.env.PORT;
+const VIDEO_STORAGE_HOST = process.env.VIDEO_STORAGE_HOST;
+const VIDEO_STORAGE_PORT = process.env.VIDEO_STORAGE_PORT;
 
 app.get("/video", async (req, res) => {
-  const videoPath = "./videos/SampleVideo_1280x720_1mb.mp4";
-  const stats = await fs.promises.stat(videoPath);
-  res.writeHead(200, {
-    "Content-Length": stats.size,
-    "Content-Type": "video/mp4",
-  });
-  fs.createReadStream(videoPath).pipe(res);
+  const forwardRequest = http.request(
+    {
+      host: VIDEO_STORAGE_HOST,
+      port: VIDEO_STORAGE_PORT,
+      path: "/video?path=SampleVideo_1280x720_1mb.mp4",
+      method: "GET",
+      headers: req.headers,
+    },
+    (forwardResponse) => {
+      res.writeHead(forwardResponse.statusCode, forwardResponse.headers);
+      forwardResponse.pipe(res);
+    }
+  );
+  req.pipe(forwardRequest);
 });
 
 app.listen(PORT, () => console.log(`Server listening on port ${PORT}`));
