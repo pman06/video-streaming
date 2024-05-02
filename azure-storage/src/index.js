@@ -12,7 +12,7 @@ function createBlobService() {
     STORAGE_ACCESS_KEY
   );
   const blobService = new BlobServiceClient(
-    `https://{STORAGE_ACCOUNT_NAME}.blob.core.windows.net`,
+    `https://${STORAGE_ACCOUNT_NAME}.blob.core.windows.net`,
     sharedKeyCredential
   );
   return blobService;
@@ -32,6 +32,7 @@ app.get("/video", async (req, res) => {
   // Connects the client for the Azure storage container
   const containerClient = blobService.getContainerClient(containerName);
   // Connects the client for the “blob” (aka the file) that we’d like to retrieve
+  console.log("contclient:", containerClient);
   const blobClient = containerClient.getBlobClient(videoPath);
 
   // Retireves the video properties from Azure storage
