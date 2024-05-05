@@ -1,9 +1,6 @@
 const express = require("express");
 const http = require("http");
 
-const fs = require("fs");
-const app = express();
-
 if (!process.env.PORT) {
   throw new Error(
     "Please specify the port number for the HTTP server with the environment variable PORT."
@@ -12,6 +9,7 @@ if (!process.env.PORT) {
 const PORT = process.env.PORT;
 const VIDEO_STORAGE_HOST = process.env.VIDEO_STORAGE_HOST;
 const VIDEO_STORAGE_PORT = process.env.VIDEO_STORAGE_PORT;
+const app = express();
 
 app.get("/video", async (req, res) => {
   const forwardRequest = http.request(
@@ -23,7 +21,7 @@ app.get("/video", async (req, res) => {
       headers: req.headers,
     },
     (forwardResponse) => {
-      res.writeHead(forwardResponse.statusCode, forwardResponse.headers);
+      res.writeHeader(forwardResponse.statusCode, forwardResponse.headers);
       forwardResponse.pipe(res);
     }
   );

@@ -1,19 +1,10 @@
 const express = require("express");
-const {
-  BlobServiceClient,
-  StorageSharedKeyCredential,
-} = require("@azure/storage-blob");
+const { BlobServiceClient } = require("@azure/storage-blob");
 const PORT = process.env.PORT;
-const STORAGE_ACCOUNT_NAME = process.env.STORAGE_ACCOUNT_NAME;
-const STORAGE_ACCESS_KEY = process.env.STORAGE_ACCESS_KEY;
+const STORAGE_CONNECTION_STRING = process.env.STORAGE_CONNECTION_STRING;
 function createBlobService() {
-  const sharedKeyCredential = new StorageSharedKeyCredential(
-    STORAGE_ACCOUNT_NAME,
-    STORAGE_ACCESS_KEY
-  );
-  const blobService = new BlobServiceClient(
-    `https://${STORAGE_ACCOUNT_NAME}.blob.core.windows.net`,
-    sharedKeyCredential
+  const blobService = BlobServiceClient.fromConnectionString(
+    STORAGE_CONNECTION_STRING
   );
   return blobService;
 }
@@ -32,7 +23,6 @@ app.get("/video", async (req, res) => {
   // Connects the client for the Azure storage container
   const containerClient = blobService.getContainerClient(containerName);
   // Connects the client for the “blob” (aka the file) that we’d like to retrieve
-  console.log("contclient:", containerClient);
   const blobClient = containerClient.getBlobClient(videoPath);
 
   // Retireves the video properties from Azure storage
@@ -44,10 +34,10 @@ app.get("/video", async (req, res) => {
     "Content-Type": properties.contentType,
   });
 
-  // Starts the video download
+  // Starts the video d ownload
   const response = await blobClient.download();
   // Pipes the video stream to the HTTP response
   response.readableStreamBody.pipe(res);
 });
 
-app.listen(PORT);
+app.listen(PORT, () => console.log(`Server listening on port ${PORT}`));
