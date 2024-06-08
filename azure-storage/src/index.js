@@ -33,7 +33,6 @@ app.get("/video", async (req, res) => {
     "Content-Lenght": properties.contentLength,
     "Content-Type": properties.contentType,
   });
-
   // Starts the video d ownload
   const response = await blobClient.download();
   // Pipes the video stream to the HTTP response
