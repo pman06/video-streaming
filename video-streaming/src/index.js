@@ -49,6 +49,10 @@ async function main() {
 
   const app = express();
 
+  app.get("/live", (req, res) => {
+    res.sendStatus(200);
+  });
+
   app.get("/video", async (req, res) => {
     const videoId = new mongodb.ObjectId(req.query.id);
     const videoRecord = await videoCollection.findOne({ _id: videoId });
